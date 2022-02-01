@@ -1,0 +1,258 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+class doctor extends StatefulWidget {
+  doctor({Key? key}) : super(key: key);
+
+  @override
+  State<doctor> createState() => _doctorState();
+}
+
+class _doctorState extends State<doctor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: <Widget>[
+          // Add TextFormFields and ElevatedButton here.
+          TextFormField(
+            decoration: InputDecoration(
+                  labelText: 'Nom Hopital',
+                  contentPadding: EdgeInsets.all(10),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1, color: Colors.black12))
+                      ),
+            ),
+
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: 'Numero Hopital',
+                  contentPadding: EdgeInsets.all(10),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1, color: Colors.black12))
+                      ),
+            ),
+
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: 'Specialite du medecin',
+                  contentPadding: EdgeInsets.all(10),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1, color: Colors.black12))
+                      ),
+            ),
+
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: 'Domaine',
+                  contentPadding: EdgeInsets.all(10),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1, color: Colors.black12))
+                      ),
+            ),
+
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: 'Ville de hopital',
+                  contentPadding: EdgeInsets.all(10),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1, color: Colors.black12))
+                      ),
+            ),
+
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: 'Quartier Hopital',
+                  contentPadding: EdgeInsets.all(10),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1, color: Colors.black12))
+                      ),
+            ),
+
+             Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                // Validate returns true if the form is valid, or false otherwise.
+                if (_formKey.currentState!.validate()) {
+                  // If the form is valid, display a snackbar. In the real world,
+                  // you'd often call a server or save the information in a database.
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Processing Data')),
+                  );
+                }
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ),
+          ],
+          ),
+        
+
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+home: DefaultTabController(
+            length: 2,
+            child: Scaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  title: Text("Medecins"),
+                  actions: <Widget>[
+                    Icon(
+                      Icons.notifications_sharp,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Simple_user_profil()),
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundImage:
+                            AssetImage("images/alan-walker-460x460.jpg"),
+                      ),
+                    )
+                  ],
+                  bottom: TabBar(tabs: <Widget>[
+                    Tab(
+                      child: Text(
+                        "Généralistes",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    Tab(
+                      child: Text(
+                        "Spécialisé",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ]),
+                ),
+                drawer: Menu_bar(),
+                body: TabBarView(
+                  children: [
+                    ListView(
+                      children: <Widget>[
+                        ListTile(
+                          leading:
+                              Icon(Icons.person, color: Colors.blue, size: 50),
+                          title: Text(
+                            "MOTOUM Sonia Aureline",
+                            style: TextStyle(color: Colors.black, fontSize: 20),
+                          ),
+                          subtitle: Text(
+                            "No description",
+                            style:
+                                TextStyle(color: Colors.black38, fontSize: 15),
+                          ),
+                          onTap: () {
+                            debugPrint("Maladie mortelle");
+                          },
+                        ),
+                      ],
+                    ),
+                    ListView(
+                      children: <Widget>[
+                        ListTile(
+                          leading:
+                              Icon(Icons.person, color: Colors.blue, size: 50),
+                          title: Text(
+                            "TCHIENDJE Lucien",
+                            style: TextStyle(color: Colors.black, fontSize: 20),
+                          ),
+                          subtitle: Text(
+                            "No description",
+                            style:
+                                TextStyle(color: Colors.black38, fontSize: 15),
+                          ),
+                          onTap: () {
+                            debugPrint("Maladie mortelle");
+                          },
+                        ),
+                      ],
+                    )
+                  ],
+                )
+                /*Center(
+        child: Column(
+          children: [
+            ListView(
+              
+            )
+          ],
+
+      ), 
+    )*/
+                )
+                )
+
+
+
+
+
+
+
+
+
+
+
+
+import 'package:flutter/material.dart';
+import 'Contact_medecin.dart';
+import 'Create_traitement.dart';
+import 'Home_page.dart';
+import 'Simple_user_profil.dart';
+import 'LoginPage.dart';
+import 'Traitement.dart';
+
+void main() {
+  runApp(const MyApp());
+   print('Hello, Dart');
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'E-Sante',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return LoginPage();
+  }
+}
+

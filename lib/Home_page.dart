@@ -3,6 +3,7 @@ import 'Contact_medecin.dart';
 import 'Traitement.dart';
 import 'componant/App_bar.dart';
 import 'componant/Menu_bar.dart';
+import 'doctor.dart';
 
 class Home_page extends StatefulWidget {
   @override
@@ -21,12 +22,46 @@ class _Home_pageState extends State<Home_page> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 55,
+                height: 25,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      //begin: Alignment.topLeft,
+                      //end: Alignment.bottomRight,
+                      colors: [Colors.blue, Colors.blue]),
+                ),
+                child: Center(
+                  child: Column(
+                    // add Column
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                          'Si Vous Etes Medecin , Bien Vouloir Enregistrer Vos Informations Ici',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      RaisedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => doctor()),
+                          );
+                        },
+                        child: Text('Enregistrer vos informations'),
+                      ), // your button beneath text
+                    ],
+                  ),
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   InkWell(
+                    
                     child: Container(
                       height: 130,
                       width: 140,
@@ -44,11 +79,12 @@ class _Home_pageState extends State<Home_page> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Padding(padding: EdgeInsets.all(20.0)),
                           Icon(Icons.medical_services,
                               color: Colors.white, size: 50),
                           SizedBox(height: 10),
                           Text(
-                            'Mes traitement',
+                            'Mes Traitements',
                             style: TextStyle(color: Colors.white, fontSize: 17),
                           ),
                         ],
@@ -83,7 +119,7 @@ class _Home_pageState extends State<Home_page> {
                               color: Colors.white, size: 50),
                           SizedBox(height: 10),
                           Text(
-                            'Mes ordonance',
+                            'Mes ordonances',
                             style: TextStyle(color: Colors.white, fontSize: 17),
                           ),
                         ],

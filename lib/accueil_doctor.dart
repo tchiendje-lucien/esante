@@ -2,37 +2,43 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as rootBundle;
-import 'package:http/http.dart' as http;
-import 'package:wash/screens/Consultation.dart';
-import 'models/doctor_model.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:wash/models/consultation_model.dart';
+import 'package:wash/screens/Consultation_response.dart';
+//import 'package:wash/screens/Consultation.dart';
+//import 'models/doctor_model.dart';
 
-class Contact_medecin extends StatefulWidget {
-  Contact_medecin({Key? key}) : super(key: key);
+class Accueil_doctor extends StatefulWidget {
+  Accueil_doctor({Key? key}) : super(key: key);
 
   @override
-  State<Contact_medecin> createState() => _Contact_medecinState();
+  State<Accueil_doctor> createState() => _Accueil_doctorState();
 }
 
-class _Contact_medecinState extends State<Contact_medecin> {
+class _Accueil_doctorState extends State<Accueil_doctor> {
   // String url = 'http://192.168.43.193:8000/api/doctors';
   //String token ='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xOTIuMTY4LjQzLjE5Mzo4MDAwXC9hcGlcL2xvZ2luIiwiaWF0IjoxNjQzNDUxNjUyLCJleHAiOjE2NDM0NTUyNTIsIm5iZiI6MTY0MzQ1MTY1MiwianRpIjoiWjJhM0hpcGFwOHBaQlFtZSIsInN1YiI6MSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.D7toCUSPkIhmhpf3NwhQGzcYkP1cMbs7gnH2uKwHsvM';
+
+  @override
+  void initState() {
+    fetchConsultation();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Liste Medecins'),
+        title: Text('WELCOME DOCTOR'),
       ),
       body: FutureBuilder(
-        future: fetchDoctor(),
+        future: fetchConsultation(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
             return Container(
               child: Center(child: Text("Loading...")),
             );
           } else {
-            var items = snapshot.data as List<Doctor>;
+            var items = snapshot.data as List<Consultation>;
             return ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context, index) {
@@ -48,7 +54,7 @@ class _Contact_medecinState extends State<Contact_medecin> {
                           height: 50,
                           child: CircleAvatar(
                             //radius: 50,
-                            backgroundImage: AssetImage('images/doctor.jpg'),
+                            backgroundImage: AssetImage('images/user.png'),
                           ),
                         ),
                         Expanded(
@@ -61,7 +67,7 @@ class _Contact_medecinState extends State<Contact_medecin> {
                                 Padding(
                                   padding: EdgeInsets.only(left: 8, right: 8),
                                   child: Text(
-                                    'Dr.${items[index].name.toString()} ${items[index].surname.toString()}',
+                                    'Poids : ${items[index].weight.toString()} kg ',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -71,17 +77,16 @@ class _Contact_medecinState extends State<Contact_medecin> {
                                 Padding(
                                     padding: EdgeInsets.only(left: 8, right: 8),
                                     child: Text(
-                                      '${items[index].speciality.toString()}-${items[index].domaine.toString()}',
+                                      'Temperature : ${items[index].temperature.toString()} °C',
                                       style: TextStyle(
-                                        fontSize: 14,
-                                        fontStyle: FontStyle.italic,
-                                        color: Colors.greenAccent
-                                      ),
+                                          fontSize: 14,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.greenAccent),
                                     )),
                                 Padding(
                                     padding: EdgeInsets.only(left: 8, right: 8),
                                     child: Text(
-                                      '${items[index].hospital_name.toString()}-${items[index].ville.toString()}-${items[index].quartier.toString()}',
+                                      'Antecedents Medicaux : ${items[index].medical_background.toString()}',
                                       style: TextStyle(
                                         fontSize: 12,
                                       ),
@@ -89,25 +94,26 @@ class _Contact_medecinState extends State<Contact_medecin> {
                                 Padding(
                                     padding: EdgeInsets.only(left: 8, right: 8),
                                     child: Text(
-                                      '${items[index].phone.toString()}',
+                                      'Problemes : ${items[index].problems.toString()}',
+                                      
                                       style: TextStyle(
                                         fontSize: 12,
                                       ),
                                     )),
                                 GestureDetector(
-                                    child: Text("Faire une consultation",
-                                        style: TextStyle(
-                                            decoration:TextDecoration.underline,
-                                            color: Colors.blue)
-                                            ),
-                                     onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => Consultation(doctorId: items[index].id,
-                                            )),
-                                          );
-                                        },
-                                    )
+                                  child: Text("Repondre",
+                                      style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          color: Colors.blue)),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              Consultation_response(consultationId : items[index].id,)),
+                                    );
+                                  },
+                                )
                               ],
                             ),
                           ),
@@ -122,10 +128,10 @@ class _Contact_medecinState extends State<Contact_medecin> {
     );
   }
 
-  Future<List<Doctor>> fetchDoctor() async {
-    final jsondata =
-        await rootBundle.rootBundle.loadString("jsonfile/doctor.json");
+  Future<List<Consultation>> fetchConsultation() async {
+    final jsondata = await rootBundle.rootBundle.loadString("jsonfile/consultation.json");
     final list = json.decode(jsondata) as List<dynamic>;
-    return list.map((e) => Doctor.fromJson(e)).toList();
+    return list.map((e) => Consultation.fromJson(e)).toList();
   }
+
 }
