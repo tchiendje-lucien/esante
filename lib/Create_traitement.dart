@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wash/services/user_service.dart';
+import 'package:wash/sreems/api_response.dart';
 import 'componant/App_bar.dart';
 import 'componant/Menu_bar.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Create_traitement extends StatefulWidget {
   @override
@@ -10,39 +14,32 @@ class Create_traitement extends StatefulWidget {
 
 class _Create_traitementState extends State<Create_traitement> {
   TextEditingController dateinput = TextEditingController();
-  //text editing controller for text field
-
+  TextEditingController traimenteController = TextEditingController();
+  TextEditingController descController = TextEditingController();
+  TextEditingController posologieController = TextEditingController();
+  TextEditingController dureeController = TextEditingController();
+  bool _isLoading = false;
   bool value_radio = false;
   int val = -1;
+  String date_birth = "";
   String value = "";
-  String name = "";
-  String password = "";
-  String surname = "";
-  String phone = "";
   final formkey = new GlobalKey<FormState>();
   String date = "";
   DateTime selectedDate = DateTime.now();
   String dropdownvalue = 'A quel moment les prendre';
+  List  dataPeriode  = <String>[];
+  ApiResponse apiResponse = ApiResponse();
   // List of items in our dropdown menu
-  var items = [
-    'A quel moment les prendre',
-    'Matin',
-    'Soir',
-    'Matin-Soir',
-    'Matin-Midi-Soir'
-  ];
+  String itemsPeriode = "";
 
-  validationForm() {
-    if (formkey.currentState!.validate()) {
-      formkey.currentState!.save();
-      debugPrint('$name');
-      debugPrint('$password');
-      formkey.currentState!.reset();
-    } else {
-      debugPrint('Error....');
-    }
+  void createTraitement() {}
+
+  @override
+  void initState() {
+    //getPeriode();
+    _getStateList();
+    super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,10 +67,11 @@ class _Create_traitementState extends State<Create_traitement> {
                           TextFormField(
                               keyboardType: TextInputType.text,
                               autocorrect: true,
+                              controller: traimenteController,
                               autofocus: true,
                               validator: (val) =>
-                              val!.length == 0 ? "Ce champs est obligatoire" : null,
-                              onSaved: (val) => name = val!,
+                                  val!.isEmpty ? "Champs obligatoire" : null,
+                              onSaved: (val) => traimenteController.text = val!,
                               decoration: InputDecoration(
                                 labelText: 'Titre du traitement',
                                 hintText: 'Titre du traitement',
@@ -85,12 +83,12 @@ class _Create_traitementState extends State<Create_traitement> {
                           TextFormField(
                               keyboardType: TextInputType.multiline,
                               maxLines: null,
+                              controller: descController,
                               autocorrect: true,
                               autofocus: true,
-                              validator: (val) => val!.length == 0
-                                  ? "Ce champs est obligatoire"
-                                  : null,
-                              onSaved: (val) => surname = val!,
+                              validator: (val) =>
+                                  val!.isEmpty ? "Champs obligatoire" : null,
+                              onSaved: (val) => descController.text = val!,
                               decoration: InputDecoration(
                                 labelText: 'Description',
                                 hintText: 'Entrez la description ',
@@ -103,11 +101,11 @@ class _Create_traitementState extends State<Create_traitement> {
                               keyboardType: TextInputType.multiline,
                               maxLines: null,
                               autocorrect: true,
+                              controller: posologieController,
                               autofocus: true,
-                              validator: (val) => val!.length == 0
-                                  ? "Ce champs est obligatoire"
-                                  : null,
-                              onSaved: (val) => name = val!,
+                              validator: (val) =>
+                                  val!.isEmpty ? "Champs obligatoire" : null,
+                              onSaved: (val) => posologieController.text = val!,
                               decoration: InputDecoration(
                                 labelText: 'Posologie',
                                 hintText: 'Comment devez vous le prendre?',
@@ -116,24 +114,39 @@ class _Create_traitementState extends State<Create_traitement> {
                           SizedBox(
                             height: 20,
                           ),
-                          Row(
-                              children: <Widget>[
-                                DropdownButton(
-                                  value: dropdownvalue,
-                                  icon: const Icon(Icons.keyboard_arrow_down),
-                                  items: items.map((String items) {
-                                    return DropdownMenuItem(
-                                      value: items,
-                                      child: Text(items),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      dropdownvalue = newValue!;
-                                    });
-                                  },
+                          Row(children: <Widget>[
+                            Expanded(
+                              child: DropdownButtonHideUnderline(
+                                child: ButtonTheme(
+                                  alignedDropdown: true,
+                                  child: DropdownButton<String>(
+                                    value: _myState,
+                                    iconSize: 30,
+                                    icon: (null),
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 16,
+                                    ),
+                                    hint: Text("Select Periode..."),
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        _myState = newValue!;
+                                       // _getCitiesList();
+                                        print(_myState);
+                                      });
+                                    },
+                                    items: statesList?.map((item) {
+                                      return new DropdownMenuItem(
+                                        child: new Text(item['libelle_periode']),
+                                        value: item['id'].toString(),
+                                      );
+                                    })?.toList() ??
+                                        [],
+                                  ),
                                 ),
-                              ]),
+                              ),
+                            ),
+                          ]),
                           SizedBox(
                             height: 20,
                           ),
@@ -144,8 +157,7 @@ class _Create_traitementState extends State<Create_traitement> {
                               },
                               child: Text("Date de début"),
                             ),
-
-                            Text("    ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"),
+                            Text("${date_birth}"),
                           ]),
                           SizedBox(
                             height: 10,
@@ -154,10 +166,10 @@ class _Create_traitementState extends State<Create_traitement> {
                               keyboardType: TextInputType.phone,
                               autocorrect: true,
                               autofocus: true,
-                              validator: (val) => val!.length == 0
-                                  ? "Ce champs est obligatoire"
-                                  : null,
-                              onSaved: (val) => phone = val!,
+                              controller: dureeController,
+                              validator: (val) =>
+                                  val!.isEmpty ? "Champs obligatoire" : null,
+                              onSaved: (val) => dureeController.text = val!,
                               decoration: InputDecoration(
                                 labelText: 'Durée du traitement',
                                 hintText: 'Entrez la durée du traitement',
@@ -170,13 +182,17 @@ class _Create_traitementState extends State<Create_traitement> {
                             height: 30,
                           ),
                           RaisedButton(
-                            onPressed: validationForm,
+                            onPressed: () {
+                              if (formkey.currentState!.validate()) {
+                                createTraitement();
+                              }
+                            },
                             color: Color(0xFF00BCD4),
                             padding: EdgeInsets.symmetric(
                                 horizontal: 50, vertical: 10),
                             splashColor: Colors.grey,
                             child: Text(
-                              "Créer",
+                              _isLoading ? "Creating..." : "Créer",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
@@ -204,8 +220,32 @@ class _Create_traitementState extends State<Create_traitement> {
     if (selected != null && selected != selectedDate)
       setState(() {
         selectedDate = selected;
+        date_birth =
+            "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}";
       });
   }
+
+  // Get State information by API
+  List statesList= [];
+  String? _myState;
+
+  Future<String> _getStateList() async {
+    String token = await getToken();
+    await http
+        .get(Uri.parse("http://192.168.1.100:8000/api/get_periode"), headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Accept": "application/json",
+      'Authorization': "bearer $token"
+    }).then((response) {
+      var data = json.decode(response.body);
+      print(data);
+
+//      print(data);
+      setState(() {
+        statesList = data['treatment'];
+      });
+      print(statesList);
+    });
+    return "success";
+  }
 }
-
-

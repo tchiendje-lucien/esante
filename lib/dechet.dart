@@ -156,4 +156,119 @@
                dropdownvalue = newValue!;
                });
                },
-               )*/
+               )
+
+
+
+                 //error variable
+  String password_error = "";
+  String name_error = "";
+  String email_error = "";
+  String re_password_error = "";
+  String surname_error = "";
+  String date_birth_error = "";
+  String phone_error = "";
+  String sexe_error = "";
+
+  //normal variable
+  bool value_radio = false;
+  int val = -1;
+  String value = "";
+  String name = "";
+  String password = "";
+  String surname = "";
+  String phone = "";
+  String re_password = "";
+  String date_birth = "";
+  bool _isLoading = false;
+  var body;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordlController = TextEditingController();
+  TextEditingController re_passwordController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController surnameController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  final formkey = new GlobalKey<FormState>();
+  // Initial Selected Value
+  String sexe = 'Homme';
+  // List of items in our dropdown menu
+  var items = ['Homme', 'Femme'];
+  String date = "";
+  DateTime selectedDate = DateTime.now();
+
+  register() async {
+    var formData ={
+      'email': emailController.text,
+      'password': passwordController.text,
+      're_password': re_passwordController.text,
+      'phone': phoneController.text,
+      'name': nameController.text,
+      'surname': surnameController.text,
+      'date_birth': date_birth,
+      'sexe': sexe,
+    };
+    if (formkey.currentState!.validate()) {
+      formkey.currentState!.save();
+      formkey.currentState!.reset();
+    }
+    setState((){
+      _isLoading = true;
+    });
+    try {
+      print(formData);
+      var response = await CallApi().postDate(formData, "register");
+      setState((){
+        body = jsonDecode(response.body);
+      });
+      print(body["errors"]);
+      if(body["statut"]== true){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  LoginPage()),
+        );
+        setState((){
+          _isLoading = false;
+        });
+      }else{
+        setState((){
+          _isLoading = false;
+          password_error = body['errors']['password'][0];
+          re_password_error = body['errors']['re_password'][0];
+          name_error = body['errors']['name'][0];
+          surname_error = body['errors']['surname'][0];
+          phone_error = body['errors']['phone'][0];
+          sexe_error = body['errors']['sexe'][0];
+          date_birth_error = body['errors']['date_birth'][0];
+          email_error = body['errors']['email'][0];
+        });
+       // print(email_error);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(body['errors']['email'][0]),
+          duration: const Duration(seconds: 10),
+        ));
+      }
+      print(response);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+
+
+        ApiResponse response = await getUserDetail();
+      if(response.error == null){
+
+      }else if(response.error == "Unauthorized"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('{$response.error}')
+        ));
+      }
+  */

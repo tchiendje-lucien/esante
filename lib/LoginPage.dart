@@ -1,8 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wash/services/api.dart';
+import 'package:wash/services/user_service.dart';
+import 'package:wash/sreems/api_response.dart';
 import 'Forgot_password.dart';
 import 'Register.dart';
 import 'Home_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'package:dio/dio.dart';
+
+import 'models/user_model.dart';
+//import 'package:dio/dio.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -11,19 +22,52 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   String value = "";
-  String name = "";
-  String password = "";
+  bool _isLoading = false;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   final formkey = new GlobalKey<FormState>();
 
-  validationForm() {
-    if (formkey.currentState!.validate()) {
-      formkey.currentState!.save();
-      debugPrint('$name');
-      debugPrint('$password');
-      formkey.currentState!.reset();
-    } else {
-      debugPrint('Error....');
+  loginUser() async {
+    var formData = FormData.fromMap({
+      'email': emailController.text,
+      'password': emailController.text,
+    });
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      ApiResponse response = await login(
+        emailController.text,
+        passwordController.text,
+      );
+      if (response.error == null) {
+        saveAndRedirectHome(response.data as User);
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("${response.error}")));
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        _isLoading = false;
+      });
     }
+  }
+
+  void saveAndRedirectHome(User user) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setString("token", user.token ?? "");
+    await pref.setInt("userId", user.id ?? 0);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Home_page()),
+    );
   }
 
   @override
@@ -95,16 +139,18 @@ class _LoginPageState extends State<LoginPage> {
                                                 MainAxisAlignment.center,
                                             children: <Widget>[
                                               TextFormField(
-                                                  keyboardType:
-                                                      TextInputType.text,
+                                                  controller: emailController,
+                                                  keyboardType: TextInputType
+                                                      .emailAddress,
                                                   autocorrect: true,
                                                   autofocus: true,
-                                                  validator: (val) => val!
-                                                              .length ==
-                                                          0
-                                                      ? "Valider votre identifiant"
-                                                      : null,
-                                                  onSaved: (val) => name = val!,
+                                                  validator: (val) =>
+                                                      val!.isEmpty
+                                                          ? "Champs obligatoire"
+                                                          : null,
+                                                  onSaved: (val) =>
+                                                      emailController.text =
+                                                          val!,
                                                   decoration: InputDecoration(
                                                     labelText:
                                                         'Email ou Téléphone',
@@ -119,16 +165,19 @@ class _LoginPageState extends State<LoginPage> {
                                                     ),
                                                   )),
                                               TextFormField(
+                                                  controller:
+                                                      passwordController,
                                                   keyboardType: TextInputType
                                                       .visiblePassword,
                                                   autofocus: true,
-                                                  validator: (val) => val!
-                                                              .length ==
-                                                          0
-                                                      ? "Valider votre mot de passe"
-                                                      : null,
+                                                  obscureText: true,
+                                                  validator: (val) =>
+                                                      val!.isEmpty
+                                                          ? "Champs obligatoire"
+                                                          : null,
                                                   onSaved: (val) =>
-                                                      password = val!,
+                                                      passwordController.text =
+                                                          val!,
                                                   decoration: InputDecoration(
                                                     labelText: 'Mot de passe',
                                                     hintText:
@@ -146,17 +195,20 @@ class _LoginPageState extends State<LoginPage> {
                                               ),
                                               RaisedButton(
                                                 onPressed: () {
-                                                Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (context) => Home_page()),
-                                                );},
+                                                  if (formkey.currentState!
+                                                      .validate()) {
+                                                    loginUser();
+                                                  }
+                                                },
                                                 color: Color(0xFF00BCD4),
                                                 padding: EdgeInsets.symmetric(
                                                     horizontal: 50,
                                                     vertical: 10),
                                                 splashColor: Colors.grey,
                                                 child: Text(
-                                                  "Se connecter",
+                                                  _isLoading
+                                                      ? "Connecting..."
+                                                      : "Se connecter",
                                                   style: TextStyle(
                                                       fontSize: 20,
                                                       fontWeight:
@@ -172,10 +224,10 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => Forgot_password()),
-                                          );
+                                          if (formkey.currentState!
+                                              .validate()) {
+                                            loginUser();
+                                          }
                                         },
                                         child: Text(
                                           "Avez vous oublié votre mot de passe",
@@ -188,9 +240,11 @@ class _LoginPageState extends State<LoginPage> {
                                       GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => Register()),
-                                          );
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      Register()),
+                                            );
                                           },
                                           child: Text(
                                             "Creer compte",

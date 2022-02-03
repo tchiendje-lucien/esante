@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wash/sreems/loading.dart';
 import 'Contact_medecin.dart';
 import 'Create_traitement.dart';
 import 'Home_page.dart';
@@ -35,6 +36,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return LoginPage();
+    return loading();
   }
 }
