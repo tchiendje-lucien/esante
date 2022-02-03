@@ -1,0 +1,75 @@
+appBar: AppBar(
+        title: Text('DOCTORS'),
+      ),
+
+    
+      body: _loading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: _doctorList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Doctor doctor = _doctorList[index];
+                return Container(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                ),
+                                Text(
+                                  '${doctor.hospital_name}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.hospital_phone}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.speciality}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.domaine}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.ville}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.quartier}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),

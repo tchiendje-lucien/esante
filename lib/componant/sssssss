@@ -1,0 +1,127 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:wash/models/api_response.dart';
+import 'package:wash/models/doctor_model.dart';
+import 'package:wash/services/doctor_service.dart';
+import 'Simple_user_profil.dart';
+import 'componant/App_bar.dart';
+import 'componant/Menu_bar.dart';
+import 'package:http/http.dart' as http;
+
+class Contact_medecin extends StatefulWidget {
+  @override
+  State<Contact_medecin> createState() => _Contact_medecinState();
+}
+
+class _Contact_medecinState extends State<Contact_medecin> {
+  //List _doctorList = [];
+  //bool _loading = true;
+
+  void retrieveDoctors() async {
+    //ApiResponse response = await getDoctors();
+    List data = await getDoctor();
+    print(data);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    retrieveDoctors();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('DOCTORS'),
+      ),
+    );
+  }
+
+  Future<List> getDoctor() async {
+    String token =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xOTIuMTY4LjQzLjE5NDo4MDAwXC9hcGlcL2xvZ2luIiwiaWF0IjoxNjQzMjAwMTgzLCJleHAiOjE2NDMyMDM3ODMsIm5iZiI6MTY0MzIwMDE4MywianRpIjoia2F3d1pyQ0lSNEw4WnB1OCIsInN1YiI6MSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.YK6fe6k_coVN0Ocpe6zEocXAXAmZBpzfrrugtKYliBk';
+    String myurl = 'http://192.168.43.194:8000/api/doctors';
+    http.Response response = await http.get(Uri.parse(myurl), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    return json.decode(response.body);
+  }
+}
+
+
+
+ body: _loading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: _doctorList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Doctor doctor = _doctorList[index];
+                return Container(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                ),
+                                Text(
+                                  "${doctor.hospital_name}",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.hospital_phone}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.speciality}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.domaine}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.ville}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                                Text(
+                                  '${doctor.quartier}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
