@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'api.dart';
 
-String url = "http://192.168.1.100:8000/api/register";
+String url = "http://192.168.1.102:8000/api/";
 //Register
 Future<ApiResponse> register(
     String email,
@@ -67,7 +67,7 @@ Future<ApiResponse> login(
   ApiResponse apiResponse = ApiResponse();
   try {
     var response = await http.post(
-        Uri.parse("http://192.168.1.100:8000/api/login"),
+        Uri.parse(url+"login"),
         body: jsonEncode(formData),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
@@ -100,7 +100,7 @@ Future<ApiResponse> getUserDetail() async {
   try {
     String token = await getToken();
     final response = await http
-        .get(Uri.parse("http://192.168.1.101:8000/api/profile"),
+        .get(Uri.parse(url+"profile"),
         headers:
         {
           'Content-Type': 'application/json; charset=UTF-8',

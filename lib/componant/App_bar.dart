@@ -50,23 +50,3 @@ AppBar headerNav({String? title, required BuildContext context}) {
     ],
   );
 }
-/*class _App_barState extends State<App_bar> {
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      centerTitle: true,
-      backgroundColor: Color(0xFF00BCD4),
-      title: Text("E-Sante"),
-      actions: <Widget>[
-        Icon(
-          Icons.notifications_sharp,
-          color: Colors.white,
-          size: 30,
-        ),
-        CircleAvatar(
-          backgroundImage: AssetImage("images/alan-walker-460x460.jpg"),
-        ),
-      ],
-    );
-  }
-}*/

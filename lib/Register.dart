@@ -39,57 +39,6 @@ class _RegisterState extends State<Register> {
   String date = "";
   DateTime selectedDate = DateTime.now();
 
-  registerUser() async {
-    var formData = {
-      'email': emailController.text,
-      'password': passwordController.text,
-      're_password': re_passwordController.text,
-      'phone': phoneController.text,
-      'name': nameController.text,
-      'surname': surnameController.text,
-      'date_birth': date_birth,
-      'sexe': sexe,
-    };
-    /*if (formkey.currentState!.validate()) {
-      formkey.currentState!.save();
-      formkey.currentState!.reset();
-    }*/
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      ApiResponse response = await register(
-          emailController.text,
-          passwordController.text,
-          nameController.text,
-          surnameController.text,
-          sexe,
-          phoneController.text,
-          re_passwordController.text,
-          date_birth);
-      print(emailController.text);
-      if (response.error == null) {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("${response.error}")));
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      print(e);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -356,6 +305,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  //Construct date
   _selectDate(BuildContext context) async {
     final DateTime? selected = await showDatePicker(
         context: context,
@@ -368,5 +318,54 @@ class _RegisterState extends State<Register> {
         date_birth =
             "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}";
       });
+  }
+
+  //Register User
+  registerUser() async {
+    var formData = {
+      'email': emailController.text,
+      'password': passwordController.text,
+      're_password': re_passwordController.text,
+      'phone': phoneController.text,
+      'name': nameController.text,
+      'surname': surnameController.text,
+      'date_birth': date_birth,
+      'sexe': sexe,
+    };
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      ApiResponse response = await register(
+          emailController.text,
+          passwordController.text,
+          nameController.text,
+          surnameController.text,
+          sexe,
+          phoneController.text,
+          re_passwordController.text,
+          date_birth);
+      print(emailController.text);
+      if (response.error == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("${response.error}")));
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
+    }
   }
 }

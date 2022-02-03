@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wash/services/traitement_services.dart';
 import 'package:wash/services/user_service.dart';
 import 'package:wash/sreems/api_response.dart';
 import 'componant/App_bar.dart';
@@ -21,25 +22,25 @@ class _Create_traitementState extends State<Create_traitement> {
   bool _isLoading = false;
   bool value_radio = false;
   int val = -1;
-  String date_birth = "";
+  String date_debut = "";
   String value = "";
   final formkey = new GlobalKey<FormState>();
   String date = "";
   DateTime selectedDate = DateTime.now();
   String dropdownvalue = 'A quel moment les prendre';
-  List  dataPeriode  = <String>[];
+  List dataPeriode = <String>[];
   ApiResponse apiResponse = ApiResponse();
-  // List of items in our dropdown menu
   String itemsPeriode = "";
-
-  void createTraitement() {}
+  List statesList = [];
+  String? _myState;
+  List treatment = [];
 
   @override
   void initState() {
-    //getPeriode();
-    _getStateList();
+    getPeriode();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,16 +132,17 @@ class _Create_traitementState extends State<Create_traitement> {
                                     onChanged: (newValue) {
                                       setState(() {
                                         _myState = newValue!;
-                                       // _getCitiesList();
+                                        // _getCitiesList();
                                         print(_myState);
                                       });
                                     },
                                     items: statesList?.map((item) {
-                                      return new DropdownMenuItem(
-                                        child: new Text(item['libelle_periode']),
-                                        value: item['id'].toString(),
-                                      );
-                                    })?.toList() ??
+                                          return new DropdownMenuItem(
+                                            child: new Text(
+                                                item['libelle_periode']),
+                                            value: item['id'].toString(),
+                                          );
+                                        })?.toList() ??
                                         [],
                                   ),
                                 ),
@@ -157,7 +159,7 @@ class _Create_traitementState extends State<Create_traitement> {
                               },
                               child: Text("Date de début"),
                             ),
-                            Text("${date_birth}"),
+                            Text("${date_debut}"),
                           ]),
                           SizedBox(
                             height: 10,
@@ -210,6 +212,7 @@ class _Create_traitementState extends State<Create_traitement> {
     );
   }
 
+  //Construct date
   _selectDate(BuildContext context) async {
     final DateTime? selected = await showDatePicker(
       context: context,
@@ -220,32 +223,60 @@ class _Create_traitementState extends State<Create_traitement> {
     if (selected != null && selected != selectedDate)
       setState(() {
         selectedDate = selected;
-        date_birth =
+        date_debut =
             "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}";
       });
   }
 
-  // Get State information by API
-  List statesList= [];
-  String? _myState;
-
-  Future<String> _getStateList() async {
+  //Get periode
+  Future<String> getPeriode() async {
     String token = await getToken();
-    await http
-        .get(Uri.parse("http://192.168.1.100:8000/api/get_periode"), headers: {
+    await http.get(Uri.parse(url + "get_periode"), headers: {
       'Content-Type': 'application/json; charset=UTF-8',
       "Accept": "application/json",
       'Authorization': "bearer $token"
     }).then((response) {
       var data = json.decode(response.body);
-      print(data);
-
-//      print(data);
       setState(() {
         statesList = data['treatment'];
       });
       print(statesList);
     });
     return "success";
+  }
+
+  //Create treatment
+  createTraitement() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      ApiResponse response = await post_treatment(
+          _myState!,
+          traimenteController.text,
+          descController.text,
+          posologieController.text,
+          dureeController.text,
+          date_debut);
+      print(traimenteController.text);
+      if (response.error == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("${response.data}")));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("${response.error}")));
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
+    }
   }
 }

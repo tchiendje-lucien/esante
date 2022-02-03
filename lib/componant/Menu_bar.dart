@@ -39,15 +39,6 @@ class _Menu_barState extends State<Menu_bar> {
                 ),
               ),
             ),
-
-            /*      DrawerHeader(
-          child: UserAccountsDrawerHeader(
-            accountName: Text('Test123'),
-            accountEmail: Text('test@123.com'),
-            currentAccountPicture: Image.asset(
-                "images/alan-walker-460x460.jpg"),
-          ),
-        ),*/
             ListTile(
               leading: Icon(Icons.home),
               title: Text(
